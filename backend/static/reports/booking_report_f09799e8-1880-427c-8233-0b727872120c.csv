@@ -1,0 +1,6 @@
+Booking ID,Trek ID,Trekker ID,Booked Slots,Date,Status
+1,2,7,1,2026-08-07,Confirmed
+2,3,7,1,2026-08-07,Cancelled
+3,2,6,1,2026-08-08,Cancelled
+4,4,6,1,2026-08-08,Confirmed
+5,2,10,2,2026-08-08,Cancelled
