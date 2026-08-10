@@ -1,0 +1,14 @@
+# Node/Vue
+node_modules/
+dist/
+.DS_Store
+
+# Python/Flask
+venv/
+env/
+__pycache__/
+*.pyc
+instance/
+
+# Environment Variables (Never push secrets!)
+.env

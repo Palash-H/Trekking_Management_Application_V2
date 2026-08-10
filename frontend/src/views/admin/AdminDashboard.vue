@@ -8,20 +8,29 @@
       </div>
     </header>
 
-    <!-- DEFAULT STATE: Stats Grid -->
+    <!-- DEFAULT STATE: Stats Grid & Charts -->
     <div v-if="!isSearchMode">
-      <div v-if="loadingStats" class="loading-state">Loading stats...</div>
+      <div v-if="loadingStats" class="loading-state">Loading dashboard data...</div>
       
-      <!-- 🌟 Use Stat Card Components 🌟 -->
-      <div v-else class="stats-grid">
-        <DashboardStatCard title="Total Trekkers" :value="stats.total_trekkers" />
-        <DashboardStatCard title="Total Staff" :value="stats.total_staff" />
-        <DashboardStatCard title="Total Treks" :value="stats.active_treks" />
-        <DashboardStatCard title="Total Bookings" :value="stats.total_bookings" highlight />
+      <div v-else>
+        <!-- 🌟 Use Stat Card Components (Added Revenue!) 🌟 -->
+        <div class="stats-grid">
+          <DashboardStatCard title="Total Revenue" :value="'₹' + (stats.total_revenue || 0).toLocaleString()" highlight />
+          <DashboardStatCard title="Total Bookings" :value="stats.total_bookings" />
+          <DashboardStatCard title="Total Trekkers" :value="stats.total_trekkers" />
+          <DashboardStatCard title="Total Staff" :value="stats.total_staff" />
+          <DashboardStatCard title="Active Treks" :value="stats.active_treks" />
+        </div>
+
+        <!-- 🌟 NEW: Charts Component 🌟 -->
+        <DashboardCharts 
+          :popularTreks="chartData.popularTreks" 
+          :statusBreakdown="chartData.statusBreakdown" 
+        />
       </div>
     </div>
 
-    <!-- SEARCH STATE: Global Search Results Component 🌟 -->
+    <!-- SEARCH STATE: Global Search Results Component -->
     <DashboardSearchResults 
       v-else 
       :results="searchResults" 
@@ -32,18 +41,20 @@
 </template>
 
 <script setup>
-import { ref, onMounted, watch, computed } from 'vue';
+import { ref, watch, computed } from 'vue';
 import { useRoute } from 'vue-router';
 import axios from 'axios';
 
 // Import Child Components
 import DashboardStatCard from '@/components/Admin/DashboardStatCard.vue';
 import DashboardSearchResults from '@/components/Admin/DashboardSearchResults.vue';
+import DashboardCharts from '@/components/Admin/DashboardCharts.vue'; // <-- 🌟 NEW IMPORT
 
 const route = useRoute();
 
-// --- Stats State ---
-const stats = ref({ total_trekkers: 0, total_staff: 0, active_treks: 0, total_bookings: 0 });
+// --- Data State ---
+const stats = ref({ total_trekkers: 0, total_staff: 0, active_treks: 0, total_bookings: 0, total_revenue: 0 });
+const chartData = ref({ popularTreks: [], statusBreakdown: {} }); // <-- 🌟 NEW STATE FOR CHARTS
 const loadingStats = ref(true);
 
 // --- Search State ---
@@ -57,12 +68,23 @@ const isSearchMode = computed(() => {
 });
 
 // --- API Calls ---
-const fetchStats = async () => {
+
+// 🌟 FIX: Fetch BOTH dashboard-stats and statistics simultaneously
+const fetchDashboardData = async () => {
+  loadingStats.value = true;
   try {
-    const response = await axios.get('/api/admin/dashboard-stats');
-    stats.value = response.data;
+    const [statsRes, chartsRes] = await Promise.all([
+      axios.get('/api/admin/dashboard-stats'),
+      axios.get('/api/admin/statistics') // <-- 🌟 NEW CHART API
+    ]);
+    
+    stats.value = statsRes.data;
+    chartData.value = {
+      popularTreks: chartsRes.data.popular_treks || [],
+      statusBreakdown: chartsRes.data.status_breakdown || {}
+    };
   } catch (error) {
-    console.error("Failed to load stats:", error);
+    console.error("Failed to load dashboard data:", error);
   } finally {
     loadingStats.value = false;
   }
@@ -71,15 +93,13 @@ const fetchStats = async () => {
 const performGlobalSearch = async (query) => {
   isSearching.value = true;
   try {
-    // 1. Fetch Users
-    const usersRes = await axios.get(`/admin/users?search=${query}`);
+    // 🌟 Make sure /api/ is attached to these to prevent backend crashes
+    const usersRes = await axios.get(`/api/admin/users?search=${query}`);
     searchResults.value.users = usersRes.data.users || [];
 
-    // 2. Fetch Treks
     const treksRes = await axios.get(`/api/admin/treks?search=${query}`); 
     searchResults.value.treks = treksRes.data.treks || treksRes.data || [];
 
-    // 3. Fetch Bookings
     const bookingsRes = await axios.get(`/api/admin/bookings?search=${query}`);
     searchResults.value.bookings = bookingsRes.data.bookings || [];
   } catch (error) {
@@ -89,32 +109,44 @@ const performGlobalSearch = async (query) => {
   }
 };
 
-// --- Lifecycle ---
+// --- 🌟 DEBOUNCED WATCHER (Prevents API Flooding) ---
+let searchTimeout = null;
+
+// `immediate: true` means this will also run once when the page first loads
 watch(() => route.query.search, (newSearch) => {
   searchQuery.value = newSearch || '';
   
-  if (isSearchMode.value) {
-    performGlobalSearch(searchQuery.value);
-  } else {
-    fetchStats(); 
-  }
-});
+  if (searchTimeout) clearTimeout(searchTimeout);
+  
+  searchTimeout = setTimeout(() => {
+    if (isSearchMode.value) {
+      performGlobalSearch(searchQuery.value);
+    } else {
+      fetchDashboardData(); 
+    }
+  }, 500); 
 
-onMounted(() => {
-  if (isSearchMode.value) {
-    performGlobalSearch(searchQuery.value);
-  } else {
-    fetchStats();
-  }
-});
+}, { immediate: true }); 
 </script>
 
 <style scoped>
-/* Only structural macro-layout CSS remains here */
+/* 🌟 FIX: Added dashboard wrapper to keep everything perfectly centered! */
+.dashboard {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+}
+
 .page-header { margin-bottom: 2rem; }
 .page-header h1 { font-size: 2rem; color: #0f172a; font-weight: 700; margin-bottom: 0.5rem;}
 .page-header p { color: #64748b; }
+
 .loading-state { text-align: center; padding: 3rem; color: #64748b; font-size: 1.1rem; }
 
-.stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.5rem; }
+/* Grid adjusted slightly to fit 5 cards nicely */
+.stats-grid { 
+  display: grid; 
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); 
+  gap: 1.5rem; 
+}
 </style>
