@@ -5,7 +5,6 @@
       <p>View and monitor all trek reservations.</p>
     </header>
 
-    <!-- 🌟 Use the Child Component 🌟 -->
     <BookingTable 
       :bookings="bookings" 
       :loading="loading" 

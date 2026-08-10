@@ -3,9 +3,7 @@
   <div class="admin-wrapper">
     <!-- Sidebar -->
     <aside class="sidebar">
-      <!-- <div class="sidebar-header">
-        <h2>🏔️ TrekAdmin</h2>
-      </div> -->
+      
       <nav class="sidebar-nav">
         <router-link to="/admin/dashboard" class="nav-link">Dashboard</router-link>
         <router-link to="/admin/reports" class="nav-link"> Reports & Analytics </router-link>
@@ -19,7 +17,7 @@
 
     <!-- Main Content Area -->
     <main class="admin-content">
-      <router-view /> <!-- This is where the Admin Dashboard will render! -->
+      <router-view /> 
     </main>
   </div>
   <Footer/>

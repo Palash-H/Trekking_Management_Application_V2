@@ -58,24 +58,24 @@ const localSettings = ref({
   add_slots: 0
 });
 
-// Lock the form if the trek is completed or cancelled
+
 const isLocked = computed(() => {
   return ['Completed', 'Cancelled'].includes(props.dbTrekStatus);
 });
 
-// Watch the actual DB status from the parent to set the dropdown initially
+
 watch(() => props.dbTrekStatus, (newVal) => {
   if (newVal) localSettings.value.status = newVal;
 }, { immediate: true });
 
 const handleSubmit = () => {
-  // Emit the data up to the parent
+  
   emit('update-settings', {
     status: localSettings.value.status,
     add_slots: localSettings.value.add_slots
   });
   
-  // Reset the slots input back to 0 locally after emitting
+  
   localSettings.value.add_slots = 0;
 };
 </script>

@@ -42,12 +42,12 @@ const props = defineProps({
   }
 });
 
-// Clean up the status for CSS classes
+
 const normalizedStatus = computed(() => {
   return (props.trek.status || 'Pending').toLowerCase().replace(' ', '-');
 });
 
-// Format dates specifically for this card
+// Format dates 
 const formatDate = (dateString) => {
   if (!dateString || dateString === 'N/A') return 'N/A';
   return new Date(dateString).toLocaleDateString(undefined, { month: 'short', day: 'numeric' });

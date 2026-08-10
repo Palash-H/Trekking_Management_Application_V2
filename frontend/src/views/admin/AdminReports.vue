@@ -36,11 +36,11 @@
         </div>
       </div>
 
-      <!-- RIGHT COLUMN: Live Statistics -->
+      
       <div class="report-card stats-card">
         <div class="card-header">
           <h2>Trekking Statistics</h2>
-          <!-- 🌟 Dynamic Badge based on API response -->
+          
           <span :class="['badge', statistics.is_cached ? 'cached' : 'live']">
             {{ statistics.is_cached ? '⚡ Cached Data' : '🔴 Live Data' }}
           </span>
@@ -74,7 +74,7 @@
                 <span class="bar-count">{{ trek.bookings }}</span>
               </div>
               <div class="bar-track">
-                <!-- Calculate width percentage dynamically -->
+                
                 <div class="bar-fill" :style="{ width: calculatePercentage(trek.bookings) + '%' }"></div>
               </div>
             </div>
@@ -119,15 +119,15 @@ const fetchStatistics = async () => {
   }
 };
 
-// Helper to make the CSS bar chart look good
+
 const calculatePercentage = (count) => {
   if (statistics.value.popular_treks.length === 0) return 0;
-  // Find the highest booking count to use as 100% width
+  
   const maxBookings = Math.max(...statistics.value.popular_treks.map(t => t.bookings));
   return (count / maxBookings) * 100;
 };
 
-// --- Export Logic (Unchanged) ---
+
 const triggerReportGeneration = async () => {
   isGenerating.value = true;
   taskStatus.value = "Starting background task...";
@@ -209,11 +209,11 @@ onUnmounted(() => {
   text-transform: uppercase; transition: all 0.3s ease;
 }
 .badge.live { 
-  background: #fee2e2; /* Light Red */
+  background: #fee2e2; 
   color: #991b1b; 
 }
 .badge.cached { 
-  background: #fef08a; /* Yellow/Gold for lightning fast cache */
+  background: #fef08a; 
   color: #854d0e; 
 }
 
@@ -264,7 +264,7 @@ onUnmounted(() => {
 .bar-fill { height: 100%; background: #4f46e5; border-radius: 99px; transition: width 1s cubic-bezier(0.4, 0, 0.2, 1); }
 .empty-state { color: #94a3b8; font-style: italic; }
 
-/* Keep existing Button & Utility styles */
+/* Button & Utility styles */
 .desc { color: #475569; line-height: 1.6; margin-bottom: 2rem; }
 .action-area { display: flex; align-items: center; gap: 1rem; }
 .btn { padding: 0.75rem 1.5rem; border-radius: 8px; font-weight: 600; font-size: 0.95rem; cursor: pointer; transition: all 0.2s ease; border: none; }

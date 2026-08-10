@@ -10,7 +10,7 @@
     <div v-if="loading" class="loading-state">Loading your dashboard...</div>
 
     <div v-else>
-      <!-- 🌟 Stats Grid Component -->
+      
       <div class="stats-grid">
         <StaffStatCard 
           title="Total Assigned" 
@@ -43,7 +43,7 @@
         <p>You have not been assigned to lead any treks yet. Check back later!</p>
       </div>
 
-      <!-- 🌟 Trek Assignments Grid Component -->
+      
       <div v-else class="trek-grid">
         <StaffTrekCard 
           v-for="trek in treks" 
@@ -98,7 +98,7 @@ onMounted(() => {
 </script>
 
 <style scoped>
-/* Notice how the parent now only handles the macro-layout and spacing! */
+
 .staff-dashboard { max-width: 1200px; margin: 0 auto; padding: 2rem 1rem; }
 .page-header { margin-bottom: 2rem; }
 .page-header h1 { font-size: 2.25rem; color: #0f172a; font-weight: 700; margin-bottom: 0.5rem; }
@@ -107,7 +107,7 @@ onMounted(() => {
 .loading-state, .empty-state { text-align: center; padding: 4rem; color: #64748b; background: #f8fafc; border-radius: 12px; border: 1px dashed #cbd5e1; }
 .empty-state h3 { color: #0f172a; margin-bottom: 0.5rem; font-size: 1.25rem; }
 
-/* 🌟 Grid Layouts */
+
 .stats-grid { 
   display: grid; 
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); 
@@ -130,6 +130,6 @@ onMounted(() => {
   display: grid; 
   grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); 
   gap: 2rem; 
-  align-items: stretch; /* Forces cards in a row to be the same height */
+  align-items: stretch; 
 }
 </style>

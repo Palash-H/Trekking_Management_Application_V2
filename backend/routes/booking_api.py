@@ -24,9 +24,7 @@ def book_trek(trek_id):
         return jsonify({"msg": "Must request at least 1 slot."}), 400
 
     try:
-        # 2. START TRANSACTION & LOCK THE ROW
-        # with_for_update() prevents race conditions. Other concurrent requests 
-        # will wait in line here until this transaction commits or rolls back.
+        
         trek = Trek.query.with_for_update().get(trek_id)
         
         if not trek:
@@ -55,7 +53,7 @@ def book_trek(trek_id):
             trek_id=trek.id,
             book_date=date.today(),
             booked_slots=requested_slots,
-            status='Confirmed',     # Or 'Pending' if you are building payment gateways later
+            status='Confirmed',    
             pay_status='Pending'
         )
         
@@ -96,7 +94,7 @@ def get_trek_roster(trek_id):
     
     output = []
     for b in bookings:
-        # Accessing the relationship defined in your models: backref='trekker'
+        
         output.append({
             "booking_id": b.id,
             "trekker_name": b.trekker.name,
@@ -118,7 +116,7 @@ def cancel_booking(booking_id):
     current_user_id = int(get_jwt_identity())
     claims = get_jwt()
     
-    # 1. Fetch booking and lock the associated Trek row to safely update inventory
+    
     booking = Booking.query.get(booking_id)
     if not booking:
         return jsonify({"msg": "Booking not found"}), 404
@@ -126,17 +124,17 @@ def cancel_booking(booking_id):
     if booking.status == 'Cancelled':
         return jsonify({"msg": "Booking is already cancelled"}), 400
 
-    # 2. Security: Only the owner or an Admin can cancel
+    
     if claims.get("role") != 'admin' and booking.trekker_id != current_user_id:
         return jsonify({"msg": "Unauthorized to cancel this booking."}), 403
         
     try:
-        # Lock the trek row to prevent race conditions while restoring slots
+        
         trek = Trek.query.with_for_update().get(booking.trek_id)
         
         # 3. Update states
         booking.status = 'Cancelled'
-        trek.slots = trek.slots + booking.booked_slots # Restore the inventory
+        trek.slots = trek.slots + booking.booked_slots 
         
         db.session.commit()
         return jsonify({"msg": "Booking cancelled successfully. Slots restored."}), 200

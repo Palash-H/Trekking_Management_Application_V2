@@ -1,10 +1,10 @@
 <template>
   <nav class="navbar">
     <div class="nav-brand">
-      <router-link to="/">🏔️ TrekApp</router-link>
+      <router-link to="/">🏔️ TrailBliss</router-link>
     </div>
     
-    <!-- Added v-if="showSearch" here -->
+    
     <div class="search-container" v-if="showSearch">
       <span class="search-icon">🔍</span>
       <input 
@@ -22,7 +22,7 @@
         <router-link to="/register" class="btn btn-primary">Sign Up</router-link>
       </template>
       <template v-else>
-        <!-- We will map this button properly later based on role -->
+        
         <button class="nav-item" @click="handleLogout">Log Out</button>
       </template>
     </div>
@@ -50,14 +50,14 @@ const handleSearch = () => {
   });
 };
 
-// Keep the input in sync if the URL changes some other way
+
 watch(() => route.query.search, (newSearch) => {
   searchQuery.value = newSearch || '';
 });
 
-// Computed property to check if the search bar should be visible
+
 const showSearch = computed(() => {
-  // It will return false (hide) if the user is exactly on the reports page
+  
   return route.path !== '/admin/reports';
 });
 </script>

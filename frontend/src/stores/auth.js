@@ -2,7 +2,7 @@ import { defineStore } from 'pinia';
 import axios from 'axios';
 import { jwtDecode } from 'jwt-decode';
 
-// Force Axios to hit your specific Flask port
+// Force Axios to hit specific Flask port
 axios.defaults.baseURL = 'http://127.0.0.1:5050';
 
 export const useAuthStore = defineStore('auth', {

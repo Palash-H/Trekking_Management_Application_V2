@@ -29,7 +29,7 @@
             </span>
           </td>
           <td class="actions">
-            <!-- If locked, button says 'View', otherwise 'Edit' -->
+            
             <button class="btn-icon edit" @click="$emit('edit-trek', trek)">
               {{ ['Completed', 'Cancelled'].includes(trek.status) ? 'View' : 'Edit' }}
             </button>

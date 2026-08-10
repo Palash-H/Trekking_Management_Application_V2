@@ -9,7 +9,7 @@
       <form @submit.prevent="handleSave">
         <div class="modal-body form-layout">
           
-          <!-- WARNING BANNER IF LOCKED -->
+          
           <div v-if="isTrekLocked" class="alert-warning">
             This trek is <strong>{{ originalStatus }}</strong>. It is locked and cannot be modified or deleted.
           </div>
@@ -84,7 +84,7 @@
             {{ isDeleting ? 'Deleting...' : 'Delete Trek' }}
           </button>
           
-          <!-- Cancel / Save Buttons (Disabled if Locked) -->
+          
           <div class="footer-actions">
             <button type="button" class="btn btn-secondary" @click="$emit('close')">Close</button>
             <button 
@@ -125,12 +125,11 @@ const today = computed(() => {
   return `${year}-${month}-${day}`;
 });
 
-// Check the ORIGINAL status, not the live form status
+
 const isTrekLocked = computed(() => {
   return ['Completed', 'Cancelled'].includes(originalStatus.value);
 });
 
-// Watch for the modal opening and pre-fill the form cleanly
 watch(() => props.trek, (newTrek) => {
   if (newTrek) {
     localForm.value = { ...newTrek };
@@ -145,7 +144,7 @@ watch(() => props.trek, (newTrek) => {
       localForm.value.start_date = `${year}-${month}-${day}`;
     }
     
-    // Ensure aliases map correctly
+    
     localForm.value.time_duration = newTrek.time_duration || newTrek.duration || 1;
     localForm.value.staff_id = newTrek.assigned_staff || newTrek.staff_id || '';
   }
@@ -158,7 +157,7 @@ const handleSave = () => {
 </script>
 
 <style scoped>
-/* NOTE: Removed backdrop-filter to prevent flickering! */
+
 .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(15, 23, 42, 0.65); display: flex; align-items: center; justify-content: center; z-index: 1000; animation: fadeIn 0.15s ease-out;}
 .modal-card { background: #ffffff; width: 100%; max-width: 550px; border-radius: 12px; overflow: hidden; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);}
 .modal-header { display: flex; justify-content: space-between; align-items: center; padding: 1.5rem; border-bottom: 1px solid #e2e8f0; }

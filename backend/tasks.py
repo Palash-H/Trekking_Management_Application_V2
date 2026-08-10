@@ -3,11 +3,9 @@ import time
 import csv
 from flask import current_app
 from celery_worker import celery
-from model import db, Booking, Trek
+from model import db, Booking, Trek, User
 import os
 from datetime import date, timedelta
-from model import User 
-# Add these to the top of tasks.py
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
@@ -16,7 +14,7 @@ from sqlalchemy import func
 def send_real_email(to_email, subject, body, is_html=False):
     """Helper function to send real emails."""
     
-    #  Email Configuration (Using MailHog defaults for local testing)
+    #  Email Configuration
     SMTP_SERVER = 'localhost'
     SMTP_PORT = 1025
     SENDER_EMAIL = 'admin@gmail.com'
@@ -40,8 +38,8 @@ def send_real_email(to_email, subject, body, is_html=False):
     # 3. Send the email
     try:
         with smtplib.SMTP(SMTP_SERVER, SMTP_PORT) as server:
-            # server.starttls() # Uncomment this line if using Gmail/Production
-            # server.login(SENDER_EMAIL, SENDER_PASSWORD) # Uncomment if using Gmail
+            # server.starttls() # Uncomment this line if Gmail/Production
+            # server.login(SENDER_EMAIL, SENDER_PASSWORD) # using Gmail
             
             server.send_message(msg)
             print(f"Email successfully sent to {to_email}")
@@ -56,7 +54,7 @@ def generate_booking_report_csv(self):
     # 1. Update task state to tell the frontend we are working
     self.update_state(state='PROGRESS', meta={'status': 'Compiling database records...'})
     
-    # Simulate a heavy query (remove sleep in production)
+   
     time.sleep(3) 
     
     # 2. Query the database inside the background worker
@@ -90,10 +88,7 @@ def generate_user_history_csv(self, user_id):
     """
     self.update_state(state='PROGRESS', meta={'status': 'Compiling your history...'})
     
-    # We need to query Bookings AND join Treks to get the Trek Name and Location
-    # Using current_app context because we are in a background worker
-    # with current_app.app_context():
-    #     # Query bookings for this specific user
+    
     user_bookings = db.session.query(Booking, Trek).join(Trek, Booking.trek_id == Trek.id)\
         .filter(Booking.trekker_id == user_id).all()
         
@@ -149,7 +144,7 @@ def send_daily_reminders(self):
                     f"- The TrekApp Team"
                 )
                 
-                # TRIGGER THE REAL EMAIL
+                
                 send_real_email(user.email, subject, body, is_html=False)
                 
     return "Daily reminders processed."
@@ -161,7 +156,7 @@ def send_monthly_report(self):
     total_treks = Trek.query.count()
     total_bookings = Booking.query.count()
     
-    # NEW: Calculate the top 3 most popular treks
+    
     popular_treks = db.session.query(
         Trek.name, func.count(Booking.id).label('count')
     ).join(Booking, Trek.id == Booking.trek_id) \
@@ -169,7 +164,7 @@ def send_monthly_report(self):
      .order_by(func.count(Booking.id).desc()) \
      .limit(3).all()
 
-    # Build the HTML list for popular treks
+    
     popular_html = "<ul>"
     for trek_name, count in popular_treks:
         popular_html += f"<li>{trek_name} - {count} bookings</li>"

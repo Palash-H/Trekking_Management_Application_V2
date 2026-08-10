@@ -11,7 +11,7 @@
     <div v-if="loading" class="loading-state">Loading your dashboard...</div>
 
     <div v-else>
-      <!-- 🌟 Summary Statistics Grid (Clickable Filters) 🌟 -->
+      
       <div class="stats-grid">
         <div 
           class="stat-card" 
@@ -55,7 +55,7 @@
         <h2>{{ filterTitle }}</h2>
       </div>
 
-      <!-- 🌟 Empty States depending on filter 🌟 -->
+
       <div v-if="filteredBookings.length === 0" class="empty-state">
         <h3 v-if="activeFilter === 'all'">No Bookings Yet</h3>
         <h3 v-else>No {{ activeFilter }} bookings found</h3>
@@ -68,9 +68,9 @@
         </button>
       </div>
 
-      <!-- 🌟 Bookings Grid (Using our new Component!) 🌟 -->
+
       <div v-else class="bookings-grid">
-        <!-- Passes data down, and listens for the @cancel event -->
+       
         <BookingCard 
           v-for="booking in filteredBookings" 
           :key="booking.booking_id"
@@ -87,7 +87,7 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue';
 import axios from 'axios';
-// Import the separated card component
+
 import BookingCard from '@/components/User/BookingCard.vue'; 
 
 const loading = ref(true);
@@ -115,7 +115,7 @@ const filteredBookings = computed(() => {
     return bookings.value.filter(b => b.booking_status !== 'Cancelled' && b.trek_status === 'Completed');
   } 
   if (activeFilter.value === 'cancelled') {
-    // Show if user cancelled the booking OR admin cancelled the trek
+    
     return bookings.value.filter(b => 
       b.booking_status === 'Cancelled' || 
       b.trek_status === 'Cancelled'
@@ -141,7 +141,7 @@ const fetchDashboardData = async () => {
 
     summary.value = summaryRes.data;
     
-    // Sort: Confirmed at top, Cancelled at bottom
+
     bookings.value = bookingsRes.data.history.sort((a, b) => {
       if (a.booking_status === 'Confirmed' && b.booking_status === 'Cancelled') return -1;
       if (a.booking_status === 'Cancelled' && b.booking_status === 'Confirmed') return 1;
@@ -158,7 +158,7 @@ const fetchDashboardData = async () => {
   }
 };
 
-// Handles the @cancel event sent up from the BookingCard
+
 const cancelBooking = async (bookingId, trekName) => {
   if (!confirm(`Are you sure you want to cancel your booking for ${trekName}?`)) {
     return;
@@ -170,7 +170,7 @@ const cancelBooking = async (bookingId, trekName) => {
     alert(response.data.msg);
     
     await fetchDashboardData();
-    // Switch to 'cancelled' tab so they see their cancelled trek
+
     activeFilter.value = 'cancelled';
   } catch (error) {
     console.error("Failed to cancel booking:", error);
@@ -186,10 +186,7 @@ onMounted(() => {
 </script>
 
 <style scoped>
-/* 
-  Notice how much cleaner this file is! 
-  It now ONLY contains CSS for the layout, headers, and stat cards.
-*/
+
 .user-dashboard { max-width: 1100px; margin: 0 auto; padding: 2rem 1rem; }
 
 /* Header Layout */
@@ -232,11 +229,11 @@ onMounted(() => {
 .section-divider { margin-bottom: 1.5rem; border-bottom: 2px solid #e2e8f0; padding-bottom: 0.75rem; }
 .section-divider h2 { font-size: 1.5rem; color: #0f172a; font-weight: 700; transition: color 0.3s; }
 
-/* CSS Grid layout for the child Booking Cards */
+
 .bookings-grid { 
   display: grid; 
   grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); 
   gap: 1.5rem; 
-  align-items: stretch; /* Ensures cards in the same row are the same height */
+  align-items: stretch; 
 }
 </style>

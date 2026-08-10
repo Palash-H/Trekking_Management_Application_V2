@@ -39,7 +39,8 @@
 import { ref, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
 import axios from 'axios';
-// Import child components
+
+
 import TrekSettingsForm from '@/components/Staff/TrekSettingsForm.vue';
 import ParticipantRoster from '@/components/Staff/ParticipantRoster.vue';
 
@@ -69,7 +70,7 @@ const fetchTrekData = async () => {
   }
 };
 
-// --- 2. Update Trek Settings ---
+
 // Triggered by emit from TrekSettingsForm
 const updateTrekSettings = async (payload) => {
   isUpdatingSettings.value = true;
@@ -82,7 +83,7 @@ const updateTrekSettings = async (payload) => {
     const response = await axios.put(`/api/staff/treks/${trekId}/status`, apiPayload);
     
     alert(response.data.msg);
-    // Refresh to get updated status and slots
+    
     await fetchTrekData();
   } catch (error) {
     console.error("Failed to update trek:", error);
@@ -92,7 +93,7 @@ const updateTrekSettings = async (payload) => {
   }
 };
 
-// --- 3. Remove Participant ---
+
 // Triggered by emit from ParticipantRoster
 const removeParticipant = async (user) => {
   if (!confirm(`Are you sure you want to remove ${user.trekker_name}? This will cancel their booking and free up ${user.booked_slots} slot(s).`)) {
@@ -115,7 +116,7 @@ onMounted(() => {
 </script>
 
 <style scoped>
-/* Only structural macro-layout CSS remains here */
+
 .manage-trek-staff { max-width: 1200px; margin: 0 auto; padding: 2rem 1rem; }
 
 /* Header & Typography */
@@ -130,13 +131,13 @@ onMounted(() => {
 /* Layout Grid */
 .layout-grid {
   display: grid;
-  grid-template-columns: 1fr 2fr; /* 1/3 for Settings, 2/3 for Roster */
+  grid-template-columns: 1fr 2fr; 
   gap: 2rem;
   align-items: start;
 }
 
 /* Responsive */
 @media (max-width: 900px) {
-  .layout-grid { grid-template-columns: 1fr; } /* Stack on smaller screens */
+  .layout-grid { grid-template-columns: 1fr; } 
 }
 </style>

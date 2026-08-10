@@ -45,9 +45,9 @@ const handleLogin = async () => {
     if (authStore.isAdmin) {
       router.push('/admin/dashboard');
     } else if (authStore.isStaff) {
-      router.push('/staff/dashboard'); // We will build this later
+      router.push('/staff/dashboard'); 
     } else {
-      router.push('/trekker/explore'); // We will build this later
+      router.push('/trekker/explore'); 
     }
   } else {
     errorMsg.value = res.msg;

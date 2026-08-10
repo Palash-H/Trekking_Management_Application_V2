@@ -5,7 +5,7 @@ from flask_cors import CORS
 from config import Config
 from extensions import cache
 
-# Updated imports: Swapped to routes.api and brought in the unified User model
+
 from routes.api import auth_b
 from routes.admin_api import auth_bp
 from routes.booking_api import booking_bp
@@ -21,13 +21,10 @@ app.config.from_object(Config)
 CORS(app)
 
 
-# app.config['CACHE_REDIS_DB'] = 1 
-# app.config['CACHE_DEFAULT_TIMEOUT'] = 300
-
 
 cache.init_app(app)
 db.init_app(app)
-# CORS(app, origins=["http://localhost:5173"])
+
 
 app.register_blueprint(auth_b, url_prefix='/')
 app.register_blueprint(auth_bp, url_prefix='/')
@@ -48,7 +45,7 @@ def home():
         "numbers": [1, 2, 4, 5, 6],
         "message": "Hello, World"
     }
-    # Fixed standard Flask syntax for returning status codes
+    
     return jsonify(data), 200
 
 

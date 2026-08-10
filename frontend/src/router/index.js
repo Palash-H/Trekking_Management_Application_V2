@@ -19,7 +19,7 @@ import ManageTrekStaff from '../views/staff/ManageTrekStaff.vue';
 import ExploreTreks from '../views/trekker/ExploreTreks.vue';
 import UserDashboard from '../views/trekker/UserDashboard.vue';
 import UserProfile from '../views/trekker/UserProfile.vue';
-// ...
+
 
 const router = createRouter({
   history: createWebHistory(),
@@ -44,7 +44,6 @@ const router = createRouter({
       meta: { requiresAuth: true, requiresAdmin: true },
       children: [
         { path: 'dashboard', name: 'adminDashboard', component: AdminDashboard },
-        // We will add Manage Treks here later!
         { path: 'treks', name: 'adminTreks', component: ManageTreks },
         { path: 'users', name: 'adminUsers', component: ManageUsers },
         { path: 'treks/create', name: 'createTrek', component: CreateTrek },
@@ -61,13 +60,13 @@ router.beforeEach((to, from, next) => {
   const authStore = useAuthStore();
   authStore.initAuth();
 
-  // If the route requires authentication and user is not logged in
+  
   if (to.meta.requiresAuth && !authStore.isAuthenticated) {
     next('/login');
   } 
-  // If the route requires admin but the user is not an admin
+  
   else if (to.meta.requiresAdmin && !authStore.isAdmin) {
-    next('/'); // Kick them to home page
+    next('/'); 
   } 
   else {
     next();

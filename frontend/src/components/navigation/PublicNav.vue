@@ -5,17 +5,6 @@
       <router-link to="/">🏔️ TrekApp</router-link>
     </div>
     
-    <!-- 2. 🌟 Search Bar (STRICTLY for Trekkers) -->
-    <!-- <div v-if="isAuthenticated && isTrekker" class="search-container">
-      <span class="search-icon">🔍</span>
-      <input 
-        type="text" 
-        v-model="searchQuery" 
-        @input="handleSearch" 
-        placeholder="Search treks, locations..." 
-        class="search-input"
-      />
-    </div> -->
 
     <!-- 3. Navigation Links -->
     <div class="nav-links">
@@ -51,7 +40,7 @@ const route = useRoute();
 const isAuthenticated = ref(false);
 const userRole = ref('');
 
-// 🌟 FIX: Reactively update auth state whenever the URL changes
+
 const checkAuth = () => {
   isAuthenticated.value = !!localStorage.getItem('token');
   userRole.value = localStorage.getItem('role');
@@ -68,7 +57,7 @@ onMounted(() => {
 // --- Role Helpers ---
 const isTrekker = computed(() => userRole.value === 'trekker');
 
-// 🌟 FIX: Dynamically assign the Dashboard URL
+
 const dashboardRoute = computed(() => {
   if (userRole.value === 'admin') return '/admin/dashboard';
   if (userRole.value === 'trekstaff') return '/staff/dashboard';
@@ -94,21 +83,21 @@ watch(() => route.query.search, (newSearch) => {
 const handleLogout = () => {
   localStorage.removeItem('token');
   localStorage.removeItem('userRole');
-  checkAuth(); // Instantly update Navbar to Logged Out state
+  checkAuth(); 
   
   router.push('/login');
 };
 </script>
 
 <style scoped>
-/* --- Premium Glassmorphism Navbar --- */
+
 .navbar {
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 1rem 5%;
-  background: rgba(255, 255, 255, 0.85); /* Slightly transparent */
-  backdrop-filter: blur(12px); /* Frosted glass effect */
+  background: rgba(255, 255, 255, 0.85); 
+  backdrop-filter: blur(12px); 
   -webkit-backdrop-filter: blur(12px);
   border-bottom: 1px solid var(--border);
   position: sticky;
@@ -168,17 +157,17 @@ const handleLogout = () => {
 .search-input:focus { 
   background: #ffffff; 
   border-color: var(--primary); 
-  box-shadow: 0 0 0 4px rgba(46, 125, 50, 0.15); /* Soft global green glow */
+  box-shadow: 0 0 0 4px rgba(46, 125, 50, 0.15); 
 }
 
-/* --- Navigation Links --- */
+
 .nav-links { 
   display: flex; 
   align-items: center; 
   gap: 1rem; 
 }
 
-/* Premium Ghost Buttons for Links */
+
 .nav-item {
   color: var(--text-muted); 
   text-decoration: none; 
@@ -197,14 +186,14 @@ const handleLogout = () => {
   background: rgba(15, 23, 42, 0.04); /* Subtle grey background on hover */
 }
 
-/* Elegant Logout Button */
+
 .btn-logout { color: #ef4444; }
 .btn-logout:hover { 
   background: rgba(239, 68, 68, 0.1); /* Soft red background instead of underline */
   color: #dc2626; 
 }
 
-/* Pill-shaped Sign Up Button */
+
 .btn-primary {
   background-color: var(--primary); 
   color: white; 
@@ -227,7 +216,7 @@ const handleLogout = () => {
   transform: translateY(0) scale(0.97);
 }
 
-/* --- Responsive Adjustments --- */
+
 @media (max-width: 768px) {
   .search-container { display: none; }
   .navbar { padding: 1rem 1.5rem; }

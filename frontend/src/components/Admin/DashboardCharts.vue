@@ -34,7 +34,7 @@ import {
   CategoryScale, LinearScale, ArcElement 
 } from 'chart.js';
 
-// Register ChartJS components
+
 ChartJS.register(Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale, ArcElement);
 
 const props = defineProps({
@@ -48,7 +48,7 @@ const props = defineProps({
   }
 });
 
-// --- Bar Chart Logic ---
+
 const barChartData = computed(() => ({
   labels: props.popularTreks.map(t => t.name),
   datasets: [{
@@ -68,7 +68,7 @@ const barOptions = {
   }
 };
 
-// --- Doughnut Chart Logic ---
+
 const hasStatusData = computed(() => {
   return Object.values(props.statusBreakdown).some(val => val > 0);
 });
@@ -92,20 +92,20 @@ const doughnutOptions = {
   plugins: {
     legend: { position: 'bottom' }
   },
-  cutout: '65%' // Makes it a doughnut instead of a pie
+  cutout: '65%' 
 };
 </script>
 
 <style scoped>
 .charts-wrapper {
   display: grid;
-  grid-template-columns: 2fr 1fr; /* Bar chart gets more space than Doughnut */
+  grid-template-columns: 2fr 1fr; 
   gap: 1.5rem;
   margin-top: 1.5rem;
 }
 
 @media (max-width: 900px) {
-  .charts-wrapper { grid-template-columns: 1fr; } /* Stack on mobile */
+  .charts-wrapper { grid-template-columns: 1fr; } 
 }
 
 .chart-card {
@@ -131,7 +131,7 @@ const doughnutOptions = {
 
 .chart-container {
   padding: 1.5rem;
-  height: 300px; /* Fixed height is required for ChartJS responsive mode */
+  height: 300px; 
   position: relative;
   display: flex;
   align-items: center;

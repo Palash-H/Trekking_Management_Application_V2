@@ -36,7 +36,7 @@ def auto_update_trek_statuses():
         t.status = 'Started'
         changed = True
 
-    # Commit only if changes were actually made to save database performance
+    
     if changed:
         try:
             db.session.commit()
@@ -73,22 +73,6 @@ def staff_create():
     return jsonify({"msg": "Staff Created Successfully"}), 201
 
 
-# @auth_bp.route('/admin/staff_list', methods=['GET'])
-# @jwt_required()
-# def get_staff_list():
-#     # Verify Admin Privileges
-#     claims = get_jwt()
-#     if claims.get("role") != 'admin':
-#         return jsonify({"msg": "Admin Auth required"}), 403
-
-#     # Query only users with the 'trekstaff' role
-#     staff_members = User.query.filter_by(role='trekstaff').all()
-    
-#     # Format the data for the frontend dropdown
-#     # Note: Use 'username' if your model uses 'username' instead of 'name'
-#     staff_data = [{"id": staff.id, "name": staff.name} for staff in staff_members]
-    
-#     return jsonify(staff_data), 200
 
 @auth_bp.route('/admin/create_trek', methods=['POST'])
 @jwt_required()
@@ -133,15 +117,15 @@ def create_trek():
         location = data.get('location'),
         difficulty = data.get('difficulty', 'Moderate'),
         time_duration = time_duration,
-        total_slots = int(data.get('slots')), # Cast to int safely
-        slots = int(data.get('slots')),       # Available slots equal total slots initially
+        total_slots = int(data.get('slots')),
+        slots = int(data.get('slots')),       
         start_date = start_date,
         end_date = end_date,
-        assigned_staff = staff_id,            # Safely validated in step 4
-        trek_fee = float(data.get('fee', 0.00)) # Cast to float safely
+        assigned_staff = staff_id,            
+        trek_fee = float(data.get('fee', 0.00)) 
     )
 
-    # 6. Secure Database Commit
+    
     try:
         db.session.add(new_trek)
         db.session.commit()
@@ -170,7 +154,7 @@ def get_all_users():
         
     users = query.all()
     
-    # --- THE FIX: Convert SQLAlchemy objects to a list of dictionaries ---
+    
     users_list = []
     for u in users:
         users_list.append({
@@ -203,10 +187,10 @@ def update_user_status(user_id, action):
     if user.role == 'admin':
         return jsonify({"msg": "Cannot modify an Admin's status"}), 400
         
-    # Standardize the action string
+    
     action = action.lower().strip()
     
-    # Apply the corresponding state changes
+    
     if action == 'blacklist':
         user.blacklist_status = True
     elif action == 'unblacklist':
@@ -235,48 +219,6 @@ def update_user_status(user_id, action):
         db.session.rollback()
         return jsonify({"msg": "Database error while updating status."}), 500
     
-# @auth_bp.route('/admin/treks/<int:trek_id>', methods=['PUT'])
-# @jwt_required()
-# def update_trek(trek_id):
-#     """Update: Modify existing trek details"""
-#     claims = get_jwt()
-#     if claims.get("role") != 'admin':
-#         return jsonify({"msg": "Admin Auth required"}), 403
-        
-#     trek = Trek.query.get(trek_id)
-#     if not trek:
-#         return jsonify({"msg": "Trek not found"}), 404
-        
-#     data = request.get_json()
-    
-#     # Update fields if provided in the payload
-#     if 'name' in data: trek.name = data['name']
-#     if 'desc' in data: trek.desc = data['desc']
-#     if 'start_date' in data:
-#         try:
-#             # Converts "YYYY-MM-DD" string into a Python Date object
-#             parsed_date = datetime.strptime(data['start_date'], '%Y-%m-%d').date()
-#             trek.start_date = parsed_date
-#         except ValueError:
-#             return jsonify({"msg": "Invalid date format. Use YYYY-MM-DD"}), 400
-#     if 'difficulty' in data: trek.difficulty = data['difficulty']
-#     if 'trek_fee' in data: trek.trek_fee = data['trek_fee']
-#     if 'status' in data: trek.status = data['status'] # e.g., 'Pending', 'Active'
-#     # if 'assigned_staff' in data: trek.assigned_staff = data['assigned_staff']
-#     if 'trek_fee' in data: trek.trek_fee = data['trek_fee']
-#     # Special handling if they want to assign a different staff member
-#     if 'staff_id' in data:
-#         new_staff = User.query.get(data['staff_id'])
-#         if not new_staff or new_staff.role != 'trekstaff':
-#             return jsonify({"msg": "Invalid staff_id provided"}), 400
-#         trek.assigned_staff = data['staff_id']
-        
-#     try:
-#         db.session.commit()
-#         return jsonify({"msg": "Trek updated successfully"}), 200
-#     except Exception as e:
-#         db.session.rollback()
-#         return jsonify({"msg": "Database error"}), 500
 
 @auth_bp.route('/admin/treks/<int:trek_id>', methods=['PUT'])
 @jwt_required()
@@ -314,9 +256,9 @@ def update_trek(trek_id):
         except ValueError:
             return jsonify({"msg": "Invalid date format. Use YYYY-MM-DD"}), 400
             
-    # 2. Handle Duration (Using 'time_duration' based on your previous models)
+    
     if 'time_duration' in data or 'duration' in data:
-        # Accepts either key from the Vue frontend
+        
         duration_val = data.get('time_duration', data.get('duration'))
         try:
             trek.time_duration = int(duration_val)
@@ -326,10 +268,10 @@ def update_trek(trek_id):
 
     # 3. Auto-Calculate the End Date 
     if recalculate_end_date and trek.start_date and trek.time_duration:
-        # Adds the duration days to the start date
+        
         trek.end_date = trek.start_date + timedelta(days=trek.time_duration)
 
-    # 4. Handle Staff Assignment
+    
     if 'staff_id' in data:
         new_staff = User.query.get(data['staff_id'])
         if not new_staff or new_staff.role != 'trekstaff':
@@ -388,8 +330,7 @@ def admin_stats():
     active_treks = Trek.query.filter_by(status='Active').count()
     total_bookings=Booking.query.count()
     
-    # 3. Calculate Total Revenue (Only from Confirmed bookings)
-    # This joins the Booking and Trek tables to multiply booked_slots * trek_fee
+    
     revenue_query = db.session.query(
         func.sum(Booking.booked_slots * Trek.trek_fee)
     ).join(Trek).filter(Booking.status != 'Cancelled').scalar()
@@ -404,12 +345,11 @@ def admin_stats():
         "total_revenue": total_revenue
     }), 200
 
-# routes/auth_bp.py (Add this to your existing file)
 
 @auth_bp.route('/api/admin/treks/<int:trek_id>/assign', methods=['PUT'])
 @jwt_required()
 def assign_staff(trek_id):
-    # Ensure you have your check_admin() helper running here!
+    
     claims = get_jwt()
     if claims.get("role") != 'admin':
         return jsonify({"msg": "Admin Auth required"}), 403
@@ -428,32 +368,6 @@ def assign_staff(trek_id):
     
     return jsonify({"msg": f"Staff {staff.name} successfully assigned to {trek.name}"}), 200
 
-# @auth_bp.route('/api/admin/bookings', methods=['GET'])
-# @jwt_required()
-# def view_all_bookings():
-#     # check_admin() logic goes here...
-#     claims = get_jwt()
-#     if claims.get("role") != 'admin':
-#         return jsonify({"msg": "Admin Auth required"}), 403
-    
-#     # We join Booking with Trek and User so the frontend has names, not just IDs
-#     all_bookings = db.session.query(Booking, Trek, User)\
-#         .join(Trek, Booking.trek_id == Trek.id)\
-#         .join(User, Booking.trekker_id == User.id).all()
-        
-#     output = []
-#     for b, t, u in all_bookings:
-#         output.append({
-#             "booking_id": b.id,
-#             "trekker_name": u.name,
-#             "trekker_email": u.email,
-#             "trek_name": t.name,
-#             "booked_slots": getattr(b, 'booked_slots', 1), # Safely get slots
-#             "status": b.status,
-#             "booking_date": getattr(b, 'book_date', None)
-#         })
-        
-#     return jsonify({"bookings": output}), 200
 
 @auth_bp.route('/api/admin/bookings', methods=['GET'])
 @jwt_required()
@@ -465,12 +379,12 @@ def view_all_bookings():
     
     search_query = request.args.get('search', '').lower()
     
-    # Base query joining all three tables
+
     query = db.session.query(Booking, Trek, User)\
         .join(Trek, Booking.trek_id == Trek.id)\
         .join(User, Booking.trekker_id == User.id)
         
-    # Apply search filter if provided
+   
     if search_query:
         query = query.filter(
             (User.name.ilike(f'%{search_query}%')) | 
@@ -483,19 +397,18 @@ def view_all_bookings():
     output = []
     for b, t, u in all_bookings:
         
-        # Handle datetime formatting so JSON doesn't crash
+        
         date_str = "N/A"
         if getattr(b, 'book_date', None):
-            # Assuming book_date is a datetime/date object. 
-            # If it is already a string in your DB, you can just use b.book_date directly.
+            
             date_str = b.book_date.strftime('%Y-%m-%d') if hasattr(b.book_date, 'strftime') else b.book_date
 
         output.append({
-            "id": b.id,                        # Changed from booking_id
-            "user_name": u.name,               # Changed from trekker_name
-            "trekker_email": u.email,          # (Vue isn't using this yet, but good to have)
+            "id": b.id,                        
+            "user_name": u.name,              
+            "trekker_email": u.email,         
             "trek_name": t.name,               
-            "participants": getattr(b, 'booked_slots', 1), # Changed from booked_slots
+            "participants": getattr(b, 'booked_slots', 1), 
             "status": b.status,
             "booking_date": date_str
         })
@@ -544,9 +457,6 @@ def get_all_treks_admin():
     return jsonify({"treks": output}), 200
 
 
-# ==========================================
-# MISSING ADMIN ENDPOINTS
-# ==========================================
 
 @auth_bp.route('/api/admin/treks/<int:trek_id>', methods=['GET'])
 @jwt_required()
@@ -582,12 +492,12 @@ def get_only_staff():
     claims = get_jwt()
     if claims.get("role") != 'admin': return jsonify({"msg": "Admin Auth required"}), 403
     
-    # ADDED: Search extraction
+    
     search_query = request.args.get('search', '').lower()
     
     query = User.query.filter_by(role='trekstaff')
     
-    # ADDED: Search filtering for staff
+    
     if search_query:
         query = query.filter(
             (User.name.ilike(f'%{search_query}%')) | 
@@ -643,7 +553,7 @@ def get_single_user(user_id):
     claims = get_jwt()
     if claims.get("role") != 'admin': return jsonify({"msg": "Admin Auth required"}), 403
     
-    # FIX: Allow viewing anyone EXCEPT other admins
+    
     user = User.query.filter(User.id == user_id, User.role != 'admin').first()
     
     if not user: return jsonify({"msg": "User not found"}), 404

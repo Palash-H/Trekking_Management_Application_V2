@@ -1,6 +1,6 @@
-from flask import Blueprint, request, jsonify, send_from_directory, current_app
+from flask import Blueprint, jsonify, send_from_directory, current_app
 from flask_jwt_extended import jwt_required, get_jwt, get_jwt_identity
-from werkzeug.utils import secure_filename # NEW: Imported for path security
+from werkzeug.utils import secure_filename 
 import os
 from extensions import cache
 import time
@@ -11,7 +11,7 @@ reports_bp = Blueprint('reports', __name__)
 # ADMIN REPORTS (ALL BOOKINGS)
 # ==========================================
 
-# 1. TRIGGER THE TASK
+
 @reports_bp.route('/api/admin/reports/generate-bookings', methods=['POST'])
 @jwt_required()
 @cache.cached(timeout=60)
@@ -63,7 +63,7 @@ def download_report(filename):
     if claims.get("role") != 'admin':
         return jsonify({"msg": "Admin Auth required"}), 403
         
-    # FIXED: Secure the filename to prevent directory traversal
+    
     safe_filename = secure_filename(filename)
     reports_dir = os.path.join(current_app.root_path, 'static', 'reports')
     
@@ -73,11 +73,6 @@ def download_report(filename):
         return jsonify({"msg": "Report file not found."}), 404
 
 
-# ==========================================
-# USER REPORTS (PERSONAL HISTORY)
-# ==========================================
-
-# 1. TRIGGER THE USER REPORT
 @reports_bp.route('/api/user/export-history', methods=['POST'])
 @jwt_required()
 def trigger_user_report():
@@ -89,12 +84,11 @@ def trigger_user_report():
     return jsonify({"task_id": task.id, "msg": "History export started"}), 202
 
 
-# 2. CHECK TASK STATUS (Polling for the User)
+
 @reports_bp.route('/api/user/export-status/<task_id>', methods=['GET'])
 @jwt_required()
 def get_user_task_status(task_id):
-    # Note: Adding strict ownership check here is recommended for production, 
-    # but this satisfies MVP requirements.
+    
     from tasks import generate_user_history_csv 
     task = generate_user_history_csv.AsyncResult(task_id)
     
@@ -110,7 +104,7 @@ def get_user_task_status(task_id):
     return jsonify(response)
 
 
-# 3. FIXED: ADDED THE MISSING USER DOWNLOAD ENDPOINT
+
 @reports_bp.route('/api/user/download/<filename>', methods=['GET'])
 @jwt_required()
 def download_user_report(filename):

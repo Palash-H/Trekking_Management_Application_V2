@@ -1,4 +1,4 @@
-# 1. THE COMPLETE IMPORT LIST
+
 from flask import Blueprint, request, jsonify, current_app
 from flask_jwt_extended import jwt_required, get_jwt_identity, get_jwt
 from sqlalchemy.orm import joinedload
@@ -6,7 +6,7 @@ from werkzeug.security import generate_password_hash
 import os
 from model import db, User, Booking, Trek
 
-# 2. THE BLUEPRINT SENTENCE
+
 from datetime import date
 from model import db, Trek
 
@@ -16,7 +16,6 @@ def auto_update_trek_statuses():
     changed = False
     
     # 1. Mark as 'Completed' if the end_date has passed
-    # (Only touch treks that aren't already Completed or Cancelled)
     past_treks = Trek.query.filter(
         Trek.end_date < today,
         Trek.status.notin_(['Completed', 'Cancelled'])
@@ -47,7 +46,7 @@ def auto_update_trek_statuses():
 
 user_bp = Blueprint('user_bp', __name__)
 
-# routes/user_bp.py (or wherever your user routes are)
+
 @user_bp.route('/api/user/bookings', methods=['GET'])
 @jwt_required()
 def get_my_bookings():
@@ -58,16 +57,14 @@ def get_my_bookings():
     
     current_user_id = int(get_jwt_identity())
     
-    # This returns a list of Booking objects (with Trek data pre-loaded)
+    # This returns a list of Booking objects
     bookings = Booking.query.options(joinedload(Booking.trek)).filter_by(trekker_id=current_user_id).all()
 
     history = []
     
-    # 🌟 THE FIX: Iterate through 'b' (bookings) and access 't' (trek) via the relationship
     for b in bookings:
-        t = b.trek  # Access the joined trek object
+        t = b.trek  
         
-        # Safety check just in case a booking exists without a trek
         if not t: 
             continue 
             
@@ -89,7 +86,7 @@ def get_my_bookings():
 def update_profile():
     """Allow users to update their name, contact, or password"""
     
-    # FIXED: Security check
+    
     claims = get_jwt()
     if claims.get("role") != 'trekker':
         return jsonify({"msg": "Only Trekkers can update their profile here."}), 403
@@ -104,15 +101,15 @@ def update_profile():
     if not data:
         return jsonify({"msg": "No data provided"}), 400
         
-    # Update fields
+    
     if 'name' in data and data['name'].strip():
         user.name = data['name'].strip()
         
-    # ADDED: Support for contact field
+    
     if 'contact' in data and data['contact'].strip():
         user.contact = data['contact'].strip()
         
-    # FIXED: Changed user.password to user.passhash to prevent database crash
+    
     if 'password' in data and data['password'].strip():
         user.passhash = generate_password_hash(data['password'].strip())
         
@@ -124,9 +121,7 @@ def update_profile():
         return jsonify({"msg": "Database error while updating profile."}), 500
 
 
-# ==========================================
-# MISSING USER ENDPOINTS
-# ==========================================
+
 
 @user_bp.route('/api/user/dashboard/summary', methods=['GET'])
 @jwt_required()
@@ -143,14 +138,13 @@ def user_dashboard_summary():
     
     total_bookings = len(bookings)
     
-    # 🌟 SAFE & SYNCED MATH
-    # We use != 'Cancelled' to match the frontend, and getattr() to prevent crashes
+    
     active_upcoming = sum(1 for b in bookings if b.status != 'Cancelled' and getattr(b.trek, 'status', '') in ['Active', 'Open', 'Started'])
     
-    # Completed: Booking isn't cancelled AND Trek is finished
+    
     completed_treks = sum(1 for b in bookings if b.status != 'Cancelled' and getattr(b.trek, 'status', '') == 'Completed')
     
-    # 🌟 FIX: Cancelled: User cancelled the booking OR Admin cancelled the entire Trek
+   
     cancelled_bookings = sum(1 for b in bookings if b.status == 'Cancelled' or getattr(b.trek, 'status', '') == 'Cancelled')
     
     return jsonify({
@@ -169,13 +163,13 @@ def get_single_booking_user(booking_id):
         
     current_user_id = int(get_jwt_identity())
     
-    # Fetch booking and join Trek details
+    
     booking = Booking.query.options(joinedload(Booking.trek)).filter_by(id=booking_id).first()
     
     if not booking:
         return jsonify({"msg": "Booking not found"}), 404
         
-    # Security: Ensure they own this booking
+    
     if booking.trekker_id != current_user_id:
         return jsonify({"msg": "Unauthorized access to booking."}), 403
         

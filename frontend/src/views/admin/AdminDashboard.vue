@@ -8,12 +8,12 @@
       </div>
     </header>
 
-    <!-- DEFAULT STATE: Stats Grid & Charts -->
+    
     <div v-if="!isSearchMode">
       <div v-if="loadingStats" class="loading-state">Loading dashboard data...</div>
       
       <div v-else>
-        <!-- 🌟 Use Stat Card Components (Added Revenue!) 🌟 -->
+        
         <div class="stats-grid">
           <DashboardStatCard title="Total Revenue" :value="'₹' + (stats.total_revenue || 0).toLocaleString()" highlight />
           <DashboardStatCard title="Total Bookings" :value="stats.total_bookings" />
@@ -22,7 +22,7 @@
           <DashboardStatCard title="Active Treks" :value="stats.active_treks" />
         </div>
 
-        <!-- 🌟 NEW: Charts Component 🌟 -->
+        
         <DashboardCharts 
           :popularTreks="chartData.popularTreks" 
           :statusBreakdown="chartData.statusBreakdown" 
@@ -69,13 +69,13 @@ const isSearchMode = computed(() => {
 
 // --- API Calls ---
 
-// 🌟 FIX: Fetch BOTH dashboard-stats and statistics simultaneously
+
 const fetchDashboardData = async () => {
   loadingStats.value = true;
   try {
     const [statsRes, chartsRes] = await Promise.all([
       axios.get('/api/admin/dashboard-stats'),
-      axios.get('/api/admin/statistics') // <-- 🌟 NEW CHART API
+      axios.get('/api/admin/statistics') 
     ]);
     
     stats.value = statsRes.data;
@@ -93,7 +93,7 @@ const fetchDashboardData = async () => {
 const performGlobalSearch = async (query) => {
   isSearching.value = true;
   try {
-    // 🌟 Make sure /api/ is attached to these to prevent backend crashes
+    
     const usersRes = await axios.get(`/api/admin/users?search=${query}`);
     searchResults.value.users = usersRes.data.users || [];
 
@@ -109,10 +109,10 @@ const performGlobalSearch = async (query) => {
   }
 };
 
-// --- 🌟 DEBOUNCED WATCHER (Prevents API Flooding) ---
+
 let searchTimeout = null;
 
-// `immediate: true` means this will also run once when the page first loads
+
 watch(() => route.query.search, (newSearch) => {
   searchQuery.value = newSearch || '';
   
@@ -130,7 +130,7 @@ watch(() => route.query.search, (newSearch) => {
 </script>
 
 <style scoped>
-/* 🌟 FIX: Added dashboard wrapper to keep everything perfectly centered! */
+
 .dashboard {
   max-width: 1200px;
   margin: 0 auto;
@@ -143,7 +143,7 @@ watch(() => route.query.search, (newSearch) => {
 
 .loading-state { text-align: center; padding: 3rem; color: #64748b; font-size: 1.1rem; }
 
-/* Grid adjusted slightly to fit 5 cards nicely */
+
 .stats-grid { 
   display: grid; 
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); 

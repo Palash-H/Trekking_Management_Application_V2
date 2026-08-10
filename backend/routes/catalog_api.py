@@ -1,14 +1,6 @@
 # public_treks_bp.py
-from flask import Blueprint, jsonify
-# from app.models import Trek
 from flask import Blueprint, request, jsonify
-from flask_jwt_extended import jwt_required, get_jwt, get_jwt_identity
-from model import db, Trek, User, Booking
-from werkzeug.security import generate_password_hash, check_password_hash
-from datetime import datetime, timedelta
-from extensions import cache
-
-from datetime import date
+from datetime import date, datetime
 from model import db, Trek
 
 def auto_update_trek_statuses():
@@ -16,8 +8,7 @@ def auto_update_trek_statuses():
     today = date.today()
     changed = False
     
-    # 1. Mark as 'Completed' if the end_date has passed
-    # (Only touch treks that aren't already Completed or Cancelled)
+    
     past_treks = Trek.query.filter(
         Trek.end_date < today,
         Trek.status.notin_(['Completed', 'Cancelled'])
@@ -73,7 +64,7 @@ def get_all_active_treks():
             (Trek.location.ilike(f'%{search}%'))
         )
         
-    # 4. Apply Specific Filters (Stackable)
+    
     if name:
         query = query.filter(Trek.name.ilike(f'%{name}%'))
         
@@ -81,12 +72,12 @@ def get_all_active_treks():
         query = query.filter(Trek.location.ilike(f'%{location}%'))
         
     if difficulty:
-        # e.g., 'Easy', 'Moderate', 'Hard' (Exact match, ignoring case variations if standardized)
+        
         query = query.filter(Trek.difficulty.ilike(difficulty))
         
     if duration:
         try:
-            # We filter for treks that take THIS amount of time or less (Better UX)
+            
             max_duration = int(duration)
             query = query.filter(Trek.time_duration <= max_duration)
         except ValueError:

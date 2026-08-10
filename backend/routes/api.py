@@ -6,16 +6,9 @@ from datetime import datetime, timedelta, date
 from sqlalchemy.exc import IntegrityError
 import os
 
-# ONLY import from models.py, never from app.py
-from model import db, User, TokenBlocklist, Trek, Booking 
-# from tasks import generate_booking_report_csv
 
-# # Define your blueprints
-# auth_bp = Blueprint('auth', __name__)
-# booking_bp = Blueprint('booking', __name__)
-# reports_bp = Blueprint('reports', __name__)
-# catalog_bp = Blueprint('catalog', __name__)
-# staff_bp = Blueprint('staff', __name__)
+from model import db, User, TokenBlocklist, Trek, Booking 
+
 
 auth_b = Blueprint('auth', __name__)
 
@@ -36,13 +29,12 @@ def login():
     if not user or not check_password_hash(user.passhash, password):
         return jsonify({"msg": "Invalid credentials"}), 401
         
-    # 2. STRICT SECURITY CHECK for Staff and Trekkers
     if user.role in ['trekker', 'trekstaff']:
         # Check Blacklist Status
         if getattr(user, 'blacklist_status', False): 
             return jsonify({"msg": "Your account has been blacklisted. Please contact support."}), 403
             
-        # Check Deactivation Status (Assuming False means deactivated)
+        
         if getattr(user, 'active_status', True) == False: 
             return jsonify({"msg": "Your account is currently deactivated. Please contact support."}), 403
             
@@ -78,9 +70,7 @@ def register_user():
     if User.query.filter_by(email=email).first():
         return jsonify({"msg": "Email already registered."}), 409
 
-    # 3. Create the user (STRICT ROLE ENFORCEMENT)
-    # The requirement explicitly states "Login only for Admin and Trek Staff (no registration)"
-    # Therefore, no matter what the user sends in the JSON body, we force the role to 'trekker'
+   
     new_user = User(
         name=data.get('name'),
         email=email,
@@ -97,37 +87,15 @@ def register_user():
         db.session.rollback()
         return jsonify({"msg": "Database error occurred during registration."}), 500
 
-# @auth_b.route('/api/register', methods=['POST'])
-# def register():
-#     """Public registration endpoint (defaults to Trekker)"""
-#     data = request.get_json()
-#     email = data.get('email')
-
-#     # Check if email exists in the unified table
-#     if User.query.filter_by(email=email).first():
-#         return jsonify({"msg": "Email is already registered with us"}), 400
-
-#     new_trekker = User(
-#         name=data.get('name'),
-#         email=email,
-#         passhash=generate_password_hash(data.get('password')),
-#         contact=data.get('contact'),
-#         role='trekker' # Hardcoded to 'trekker' so public users can't make themselves admins
-#     )
-#     db.session.add(new_trekker)
-#     db.session.commit()
-
-#     return jsonify({"msg": "Trekker Registration Successful!, You can proceed to Login"}), 201
-
 
 
 @auth_b.route('/api/logout', methods=['POST'])
 @jwt_required()
 def logout():
-    # Get the unique identifier (JTI) from the current valid token
+    
     jti = get_jwt()["jti"]
     
-    # Add it to the TokenBlocklist table from your models
+    
     blocked_token = TokenBlocklist(jti=jti)
     
     try:

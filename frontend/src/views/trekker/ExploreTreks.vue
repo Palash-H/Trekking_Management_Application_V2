@@ -33,7 +33,7 @@
       <p>Try adjusting your filters to see more results.</p>
     </div>
 
-    <!-- 🌟 Replaced with Child Components 🌟 -->
+
     <div v-else class="trek-grid">
       <TrekCard 
         v-for="trek in treks" 
@@ -44,8 +44,7 @@
       />
     </div>
 
-    <!-- 🌟 Replaced with Child Component 🌟 -->
-    <!-- v-if destroys and recreates the modal, ensuring form data resets cleanly -->
+
     <BookingModal 
       v-if="showBookingModal"
       :trek="selectedTrek"
@@ -60,7 +59,7 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import axios from 'axios';
-// Import your new components (adjust paths if needed)
+
 import TrekCard from '@/components/User/TrekCard.vue';
 import BookingModal from '@/components/User/BookingModal.vue';
 
@@ -108,20 +107,18 @@ const showBookingModal = ref(false);
 const isBooking = ref(false);
 const selectedTrek = ref(null);
 
-// Triggered by the @book emit from TrekCard
+
 const openBookingModal = (trek) => {
   selectedTrek.value = trek;
   showBookingModal.value = true;
 };
 
-// Triggered by the @close emit from BookingModal
+
 const closeBookingModal = () => {
   showBookingModal.value = false;
   selectedTrek.value = null;
 };
 
-// Triggered by the @submit-booking emit from BookingModal
-// Receives the form data (slots_requested) from the child
 const handleBookingSubmit = async (formData) => {
   isBooking.value = true;
   try {
@@ -145,7 +142,7 @@ onMounted(async() => {
 </script>
 
 <style scoped>
-/* Notice how clean the parent CSS is now! Only layout and filters remain. */
+
 .explore-treks { max-width: 1200px; margin: 0 auto; padding: 2rem 1rem; }
 
 .explore-hero { text-align: center; margin-bottom: 3rem; }
@@ -161,11 +158,11 @@ onMounted(async() => {
 
 .loading-state, .empty-state { text-align: center; padding: 4rem; color: #64748b; background: #f8fafc; border-radius: 12px; border: 1px dashed #cbd5e1; }
 
-/* Grid */
+
 .trek-grid { 
   display: grid; 
   grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); 
   gap: 2rem; 
-  align-items: stretch; /* Ensures cards are equal height */
+  align-items: stretch; 
 }
 </style>

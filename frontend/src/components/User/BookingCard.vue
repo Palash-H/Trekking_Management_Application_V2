@@ -30,7 +30,6 @@
     </div>
 
     <div class="card-footer">
-      <!-- CANCEL BUTTON: Hide if Booking is Cancelled OR Trek is Completed/Cancelled -->
       <button 
         v-if="booking.booking_status !== 'Cancelled' && !['Completed', 'Cancelled'].includes(booking.trek_status)" 
         class="btn-cancel" 
@@ -45,12 +44,12 @@
         🚨 Trek Cancelled by Organizer
       </span>
       
-      <!-- User Cancelled Message -->
+     
       <span v-else-if="booking.booking_status === 'Cancelled'" class="text-muted">
         Booking Cancelled
       </span>
       
-      <!-- Completed Message -->
+     
       <span v-else class="text-muted">
         Trek Completed
       </span>
@@ -82,7 +81,7 @@ const handleCancel = () => {
   emit('cancel', props.booking.booking_id, props.booking.trek_name);
 };
 
-// Format the date specifically for this card
+// Format the date 
 const formattedDate = computed(() => {
   const dateString = props.booking.start_date;
   if (!dateString || dateString === 'N/A') return 'TBD';
@@ -93,7 +92,7 @@ const formattedDate = computed(() => {
 </script>
 
 <style scoped>
-/* Refined Card Styling */
+
 .booking-card { 
   background: #ffffff; 
   border-radius: 12px; 
@@ -103,7 +102,7 @@ const formattedDate = computed(() => {
   flex-direction: column; 
   transition: all 0.25s ease; 
   box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); 
-  height: 100%; /* Ensures all cards in a grid row stretch evenly */
+  height: 100%; 
 }
 .booking-card:hover { 
   transform: translateY(-4px); 
@@ -162,7 +161,7 @@ const formattedDate = computed(() => {
   display: flex; 
   justify-content: flex-end; 
   align-items: center; 
-  min-height: 64px; /* Ensures footers align nicely */
+  min-height: 64px; 
 }
 .btn-cancel { 
   background: #ffffff; 

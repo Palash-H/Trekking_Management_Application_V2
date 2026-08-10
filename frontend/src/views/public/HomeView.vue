@@ -1,63 +1,3 @@
-<!-- <template>
-  <div class="hero-section">
-    <div class="overlay">
-      <div class="hero-content">
-        <h1>Conquer the Mountains.</h1>
-        <p>Book safe, expertly guided treks across the world's most breathtaking landscapes.</p>
-        <router-link
-          to="/register"
-          class="btn btn-primary"
-          style="font-size: 1.1rem; padding: 1rem 2.5rem"
-          >Start Your Journey</router-link
-        >
-      </div>
-    </div>
-  </div>
-</template>
-<style scoped>
-.hero-section {
-  height: calc(100vh - 75px);
-  background-image: url('https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?q=80&w=2070');
-  background-size: cover;
-  background-position: center;
-}
-.overlay {
-  height: 100%;
-  width: 100%;
-  background: linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.7));
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-}
-.hero-content {
-  color: white;
-  max-width: 800px;
-  padding: 0 20px;
-  animation: fadeIn 1s ease-out;
-}
-h1 {
-  font-size: 4rem;
-  font-weight: 700;
-  line-height: 1.1;
-  margin-bottom: 1.5rem;
-}
-p {
-  font-size: 1.25rem;
-  color: #f1f5f9;
-  margin-bottom: 2.5rem;
-}
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-</style> -->
 <template>
   <div class="hero-section">
     <div class="overlay">
@@ -69,7 +9,7 @@ p {
         <div class="action-wrapper">
           <router-link to="/register" class="btn-cta">
             <span>Start Your Journey</span>
-            <!-- Premium UI touch: An arrow that animates on hover -->
+            
             <svg class="arrow-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
             </svg>
@@ -83,7 +23,7 @@ p {
 <style scoped>
 .hero-section {
   height: calc(100vh - 75px);
-  /* A bulletproof, highly reliable Unsplash URL of a majestic mountain */
+  
   background-image: url('https://images.unsplash.com/photo-1454496522488-7a8e488e8606?auto=format&fit=crop&q=80&w=2070');
   background-size: cover;
   background-position: center;
@@ -93,7 +33,7 @@ p {
 .overlay {
   position: absolute;
   inset: 0;
-  /* Darkens heavily at the bottom to make the white button and text pop */
+  
   background: linear-gradient(to bottom, rgba(15, 23, 42, 0.2) 0%, rgba(15, 23, 42, 0.8) 100%);
   display: flex;
   align-items: flex-end;
@@ -162,11 +102,11 @@ p {
 }
 
 .btn-cta:active {
-  transform: translateY(1px) scale(0.98); /* The "squish" effect when clicked */
+  transform: translateY(1px) scale(0.98); 
 }
 
 .btn-cta:hover .arrow-icon {
-  transform: translateX(5px); /* Arrow slides right on hover */
+  transform: translateX(5px); 
 }
 
 @keyframes fadeUp {

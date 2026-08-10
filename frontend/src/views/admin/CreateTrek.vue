@@ -13,7 +13,7 @@
       {{ message }}
     </div>
 
-    <!-- 🌟 Use the Child Component 🌟 -->
+
     <CreateTrekForm 
       :staffList="staffList"
       :loading="loading"
@@ -30,7 +30,7 @@ import { ref, onMounted, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import axios from 'axios';
 
-// Import the form component
+
 import CreateTrekForm from '@/components/Admin/CreateTrekForm.vue';
 
 const router = useRouter();
@@ -97,7 +97,7 @@ onMounted(() => {
 </script>
 
 <style scoped>
-/* Only parent layout and alert styling remains here */
+
 .create-trek {
   max-width: 1200px;
   margin: 0 auto;

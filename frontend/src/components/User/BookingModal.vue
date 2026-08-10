@@ -54,7 +54,7 @@ const props = defineProps({
 
 const emit = defineEmits(['close', 'submit-booking']);
 
-// Local state just for this form
+
 const slotsRequested = ref(1);
 
 const totalCost = computed(() => {
@@ -66,7 +66,7 @@ const handleClose = () => {
 };
 
 const handleSubmit = () => {
-  // Pass the requested slots up to the parent so it can make the API call
+  
   emit('submit-booking', { slots_requested: slotsRequested.value });
 };
 </script>

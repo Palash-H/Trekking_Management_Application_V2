@@ -11,7 +11,7 @@
 
     <div v-else class="layout-grid">
       
-      <!-- LEFT COLUMN: Edit Profile Component -->
+      
       <div class="profile-column">
         <ProfileForm 
           :profile="profile" 
@@ -20,7 +20,7 @@
         />
       </div>
 
-      <!-- RIGHT COLUMN: Export History Component -->
+      
       <div class="export-column">
         <ExportCard 
           :isGenerating="isGenerating"
@@ -40,7 +40,7 @@
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue';
 import axios from 'axios';
-// Import child components
+
 import ProfileForm from '@/components/User/ProfileForm.vue';
 import ExportCard from '@/components/User/ExportCard.vue';
 
@@ -49,16 +49,14 @@ const loadingProfile = ref(true);
 const isSaving = ref(false);
 const profile = ref({});
 
-// --- Export State ---
+
 const isGenerating = ref(false);
 const taskStatus = ref('');
 const downloadFilename = ref(null);
 const isDownloading = ref(false);
 let pollingInterval = null;
 
-// ==========================================
-// PROFILE API LOGIC
-// ==========================================
+
 
 const fetchProfile = async () => {
   try {
@@ -79,7 +77,7 @@ const updateProfile = async (formData) => {
       contact: formData.contact
     };
     
-    // Only send password if updated
+    
     if (formData.password && formData.password.trim() !== '') {
       payload.password = formData.password;
     }
@@ -87,7 +85,7 @@ const updateProfile = async (formData) => {
     const response = await axios.put('/api/user/profile', payload);
     alert(response.data.msg);
     
-    // Refresh to get updated DB data
+    
     await fetchProfile();
   } catch (error) {
     console.error("Failed to update profile:", error);
@@ -97,9 +95,7 @@ const updateProfile = async (formData) => {
   }
 };
 
-// ==========================================
-// EXPORT API LOGIC (CELERY)
-// ==========================================
+
 
 const triggerExport = async () => {
   isGenerating.value = true;
@@ -184,7 +180,7 @@ onUnmounted(() => {
 </script>
 
 <style scoped>
-/* The Parent only handles layout CSS! */
+
 .user-profile { max-width: 1000px; margin: 0 auto; padding: 2rem 1rem; }
 
 .page-header { margin-bottom: 2rem; }
@@ -197,7 +193,7 @@ onUnmounted(() => {
   display: grid; 
   grid-template-columns: 1fr 1fr; 
   gap: 2rem; 
-  align-items: stretch; /* Ensures both cards match in height */
+  align-items: stretch; 
 }
 
 @media (max-width: 768px) { 

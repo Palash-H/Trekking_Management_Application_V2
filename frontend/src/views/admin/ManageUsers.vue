@@ -14,14 +14,13 @@
     <div v-if="loading" class="loading-state">Loading users...</div>
     
     <div v-else>
-      <!-- REUSABLE TABLE FOR STAFF -->
       <UserTable 
         title="Staff Members" 
         :users="staffList" 
         @view-user="openViewModal" 
       />
 
-      <!-- REUSABLE TABLE FOR TREKKERS -->
+      
       <UserTable 
         title="Registered Trekkers" 
         :users="trekkerList" 
@@ -29,7 +28,7 @@
       />
     </div>
 
-    <!-- CHILD: User Profile Modal -->
+    
     <UserProfileModal 
       :show="showModal"
       :loading="modalLoading"
@@ -38,7 +37,7 @@
       @change-status="changeUserStatus"
     />
 
-    <!-- CHILD: Create Staff Modal -->
+    
     <CreateStaffModal 
       :show="showCreateStaffModal"
       :isCreating="isCreatingStaff"
@@ -142,7 +141,6 @@ const closeModal = () => {
   selectedUser.value = null;
 };
 
-// --- Lifecycle ---
 watch(() => route.query.search, () => {
   loading.value = true;
   fetchUsers();

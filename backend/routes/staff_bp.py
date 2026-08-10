@@ -15,7 +15,7 @@ def get_my_assignments():
         
     current_user_id = get_jwt_identity()
     
-    # Query the Trek table where assigned_staff matches the logged-in user
+    
     assigned_treks = Trek.query.filter_by(assigned_staff=current_user_id).all()
     
     output = []
@@ -63,7 +63,7 @@ def update_trek_status_and_slots(trek_id):
             return jsonify({"msg": f"Invalid status. Must be one of: {', '.join(valid_statuses)}"}), 400
         trek.status = new_status
         
-    # 2. Handle Manual Slot Update (if they need to increase/decrease total capacity)
+    
     if 'add_slots' in data:
         try:
             extra_slots = int(data['add_slots'])
@@ -96,8 +96,7 @@ def get_trek_participants(trek_id):
     if not trek:
         return jsonify({"msg": "Trek not found"}), 404
         
-    # --- STRICT OWNERSHIP CHECK ---
-    # "Ensure only assigned staff can manage a trek"
+   
     if trek.assigned_staff != current_staff_id:
         return jsonify({"msg": "Access denied. You are not assigned to this trek."}), 403
         
@@ -143,13 +142,13 @@ def update_participant_status(booking_id):
     # Fetch the associated trek to verify ownership
     trek = Trek.query.get(booking.trek_id)
     
-    # --- STRICT OWNERSHIP CHECK ---
+    
     if trek.assigned_staff != current_staff_id:
         return jsonify({"msg": "Access denied. You are not assigned to this trek."}), 403
         
     # Update the status from JSON payload
     data = request.get_json()
-    new_status = data.get('status') # e.g., 'Checked-In', 'Completed', 'Cancelled'
+    new_status = data.get('status') 
     
     if not new_status:
         return jsonify({"msg": "New status is required"}), 400
@@ -205,9 +204,6 @@ def remove_trekker(booking_id):
         return jsonify({"msg": "Database error while removing trekker."}), 500
 
 
-# ==========================================
-# MISSING STAFF ENDPOINT
-# ==========================================
 
 @staff_bp.route('/api/staff/dashboard/summary', methods=['GET'])
 @jwt_required()
