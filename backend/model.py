@@ -14,6 +14,7 @@ class User(db.Model):
     contact = db.Column(db.String(20), nullable=True)
     blacklist_status = db.Column(db.Boolean, default=False, nullable=False)
     active_status = db.Column(db.Boolean, default = True, nullable = False)
+    
     trekk_assigned = db.relationship('Trek', backref='staff', lazy=True, foreign_keys='Trek.assigned_staff')
     
     bookings = db.relationship('Booking', backref='trekker', lazy=True, cascade='all, delete-orphan', foreign_keys='Booking.trekker_id')

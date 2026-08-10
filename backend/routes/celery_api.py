@@ -7,10 +7,6 @@ import time
 
 reports_bp = Blueprint('reports', __name__)
 
-# ==========================================
-# ADMIN REPORTS (ALL BOOKINGS)
-# ==========================================
-
 
 @reports_bp.route('/api/admin/reports/generate-bookings', methods=['POST'])
 @jwt_required()

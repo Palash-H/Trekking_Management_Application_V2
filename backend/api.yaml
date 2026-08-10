@@ -1,0 +1,1331 @@
+openapi: 3.0.3
+info:
+  title: Trek Management API
+  description: API endpoints for managing treks, staff, users, and bookings.
+  version: 1.0.0
+servers:
+  - url: http://localhost:5050
+    description: Local Development Server
+
+security:
+  - bearerAuth: []
+
+paths:
+  /api/user/bookings:
+      get:
+        summary: Get user's booking history
+        description: Returns a list of all past, present, and cancelled bookings for the logged-in Trekker.
+        tags:
+          - User Dashboard
+        responses:
+          '200':
+            description: Booking history retrieved successfully
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    history:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          booking_id:
+                            type: integer
+                          trek_id:
+                            type: integer
+                          trek_name:
+                            type: string
+                          location:
+                            type: string
+                          start_date:
+                            type: string
+                            format: date
+                          trek_status:
+                            type: string
+                          booking_status:
+                            type: string
+                          booked_slots:
+                            type: integer
+          '403':
+            description: Only Trekkers can view this dashboard
+
+  /api/user/profile:
+    put:
+      summary: Update user profile
+      description: Allow users to update their name, contact, or password.
+      tags:
+        - User Dashboard
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                contact:
+                  type: string
+                password:
+                  type: string
+      responses:
+        '200':
+          description: Profile updated successfully
+        '400':
+          description: No data provided
+        '403':
+          description: Only Trekkers can update their profile here
+        '404':
+          description: User not found
+        '500':
+          description: Database error while updating profile
+
+  /api/user/dashboard/summary:
+    get:
+      summary: Get quick aggregate metrics for the Trekker Dashboard
+      tags:
+        - User Dashboard
+      responses:
+        '200':
+          description: Dashboard summary retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  total_bookings:
+                    type: integer
+                  upcoming_treks:
+                    type: integer
+                  completed_treks:
+                    type: integer
+                  cancelled_bookings:
+                    type: integer
+        '403':
+          description: Only Trekkers can access this
+
+  /api/user/bookings/{booking_id}:
+    get:
+      summary: Get details of a single booking (Digital Receipt)
+      tags:
+        - User Dashboard
+      parameters:
+        - name: booking_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Digital receipt retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  booking_id:
+                    type: integer
+                  booked_slots:
+                    type: integer
+                  booking_status:
+                    type: string
+                  booking_date:
+                    type: string
+                    format: date
+                  total_paid:
+                    type: number
+                    format: float
+                  trek_details:
+                    type: object
+                    properties:
+                      trek_id:
+                        type: integer
+                      name:
+                        type: string
+                      location:
+                        type: string
+                      start_date:
+                        type: string
+                        format: date
+                      end_date:
+                        type: string
+                        format: date
+                      status:
+                        type: string
+        '403':
+          description: Unauthorized access to booking or not a Trekker
+        '404':
+          description: Booking not found
+  /staff/my-assignments:
+      get:
+        summary: Get all treks assigned to the logged-in staff member
+        tags:
+          - Staff Operations
+        responses:
+          '200':
+            description: A list of assigned treks
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    assignments:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          trek_id:
+                            type: integer
+                          name:
+                            type: string
+                          location:
+                            type: string
+                          start_date:
+                            type: string
+                            format: date
+                          end_date:
+                            type: string
+                            format: date
+                          status:
+                            type: string
+                          total_trekkers_booked:
+                            type: integer
+          '403':
+            description: Only Trek Staff can access this
+
+  /api/staff/treks/{trek_id}/status:
+    put:
+      summary: Update the status or available slots of an assigned trek
+      tags:
+        - Staff Operations
+      parameters:
+        - name: trek_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: string
+                  enum: [Active, Started, Completed, Cancelled]
+                add_slots:
+                  type: integer
+      responses:
+        '200':
+          description: Trek updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  msg:
+                    type: string
+                  status:
+                    type: string
+                  available_slots:
+                    type: integer
+        '400':
+          description: Invalid status or add_slots format
+        '403':
+          description: Unauthorized or Trek completed
+        '404':
+          description: Trek not found
+        '500':
+          description: Database error
+
+  /staff/treks/{trek_id}/participants:
+    get:
+      summary: View all trekkers booked for a specific assigned trek
+      tags:
+        - Staff Operations
+      parameters:
+        - name: trek_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: List of participants
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  trek_name:
+                    type: string
+                  total_participants:
+                    type: integer
+                  trek_status:
+                    type: string
+                  participants:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        booking_id:
+                          type: integer
+                        trekker_name:
+                          type: string
+                        trekker_email:
+                          type: string
+                        booked_slots:
+                          type: integer
+                        booking_status:
+                          type: string
+                        booking_date:
+                          type: string
+                          format: date-time
+        '403':
+          description: Staff Auth required or not assigned to this trek
+        '404':
+          description: Trek not found
+
+  /staff/bookings/{booking_id}:
+    put:
+      summary: Update a specific participant's booking status (e.g., Checked-In)
+      tags:
+        - Staff Operations
+      parameters:
+        - name: booking_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: string
+      responses:
+        '200':
+          description: Booking status updated successfully
+        '400':
+          description: New status is required
+        '403':
+          description: Staff Auth required or not assigned to this trek
+        '404':
+          description: Booking not found
+
+  /api/staff/bookings/{booking_id}/remove:
+    post:
+      summary: Forcefully remove a trekker and refund slots
+      tags:
+        - Staff Operations
+      parameters:
+        - name: booking_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Trekker removed successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  msg:
+                    type: string
+                  available_slots:
+                    type: integer
+        '400':
+          description: Booking is already cancelled
+        '403':
+          description: Unauthorized to manage this trek or trek completed
+        '404':
+          description: Booking not found
+        '500':
+          description: Database error while removing trekker
+
+  /api/staff/dashboard/summary:
+    get:
+      summary: Quick aggregate metrics for the Staff Dashboard
+      tags:
+        - Staff Operations
+      responses:
+        '200':
+          description: Staff dashboard summary retrieved
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  total_assigned:
+                    type: integer
+                  active_treks:
+                    type: integer
+                  completed_treks:
+                    type: integer
+                  total_participants_managed:
+                    type: integer
+        '403':
+          description: Only Trek Staff can access this
+  /api/admin/reports/generate-bookings:
+      post:
+        summary: Trigger async generation of booking report
+        tags:
+          - Reports & Statistics
+        responses:
+          '202':
+            description: Task triggered successfully
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    task_id:
+                      type: string
+          '403':
+            description: Admin Auth required
+
+  /api/admin/reports/status/{task_id}:
+    get:
+      summary: Check status of booking report generation task
+      tags:
+        - Reports & Statistics
+      parameters:
+        - name: task_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Task status retrieved
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  state:
+                    type: string
+                  status:
+                    type: string
+                  filename:
+                    type: string
+        '403':
+          description: Admin Auth required
+
+  /api/admin/reports/download/{filename}:
+    get:
+      summary: Download the generated admin booking report
+      tags:
+        - Reports & Statistics
+      parameters:
+        - name: filename
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: File downloaded successfully
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+        '403':
+          description: Admin Auth required
+        '404':
+          description: Report file not found
+
+  /api/user/export-history:
+    post:
+      summary: Trigger async generation of user history report
+      tags:
+        - Reports & Statistics
+      responses:
+        '202':
+          description: History export task started
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  task_id:
+                    type: string
+                  msg:
+                    type: string
+        '401':
+          description: Unauthorized
+
+  /api/user/export-status/{task_id}:
+    get:
+      summary: Check status of user history export task
+      tags:
+        - Reports & Statistics
+      parameters:
+        - name: task_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Task status retrieved
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  state:
+                    type: string
+                  status:
+                    type: string
+                  filename:
+                    type: string
+
+  /api/user/download/{filename}:
+    get:
+      summary: Download the user's generated history report
+      tags:
+        - Reports & Statistics
+      parameters:
+        - name: filename
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: File downloaded successfully
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+        '403':
+          description: Only trekkers can download personal history
+        '404':
+          description: Report file not found
+
+  /api/admin/statistics:
+    get:
+      summary: Get analytics data for the admin dashboard
+      tags:
+        - Reports & Statistics
+      responses:
+        '200':
+          description: Statistics retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  popular_treks:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        name:
+                          type: string
+                        bookings:
+                          type: integer
+                  status_breakdown:
+                    type: object
+                    properties:
+                      Confirmed:
+                        type: integer
+                      Pending:
+                        type: integer
+                      Cancelled:
+                        type: integer
+                  total_bookings:
+                    type: integer
+                  generated_at:
+                    type: number
+                    format: float
+        '403':
+          description: Admin Auth required
+  /api/treks:
+      get:
+        summary: List and filter all active treks
+        description: Endpoint to search, filter, and view all currently active treks.
+        tags:
+          - Catalog
+        parameters:
+          - name: search
+            in: query
+            description: General search across trek name and location
+            schema:
+              type: string
+          - name: name
+            in: query
+            description: Filter specifically by trek name
+            schema:
+              type: string
+          - name: location
+            in: query
+            description: Filter specifically by location
+            schema:
+              type: string
+          - name: difficulty
+            in: query
+            description: Filter by difficulty level (e.g., Easy, Moderate, Hard)
+            schema:
+              type: string
+          - name: duration
+            in: query
+            description: Filter treks with a maximum duration (in days)
+            schema:
+              type: integer
+          - name: start_date
+            in: query
+            description: Filter treks starting on or after this date (YYYY-MM-DD)
+            schema:
+              type: string
+              format: date
+        responses:
+          '200':
+            description: A successfully filtered list of active treks
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    treks:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          id:
+                            type: integer
+                          name:
+                            type: string
+                          desc:
+                            type: string
+                          location:
+                            type: string
+                          difficulty:
+                            type: string
+                          time_duration:
+                            type: integer
+                          start_date:
+                            type: string
+                            format: date
+                          end_date:
+                            type: string
+                            format: date
+                          status:
+                            type: string
+                          trek_fee:
+                            type: number
+                            format: float
+                          total_slots:
+                            type: integer
+                          available_slots:
+                            type: integer
+                          is_sold_out:
+                            type: boolean
+
+  /api/treks/{trek_id}:
+    get:
+      summary: Get details of a specific trek
+      description: View full details of a specific trek.
+      tags:
+        - Catalog
+      parameters:
+        - name: trek_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Trek details retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  name:
+                    type: string
+                  desc:
+                    type: string
+                  location:
+                    type: string
+                  difficulty:
+                    type: string
+                  time_duration:
+                    type: integer
+                  start_date:
+                    type: string
+                    format: date
+                  end_date:
+                    type: string
+                    format: date
+                  trek_fee:
+                    type: number
+                    format: float
+                  available_slots:
+                    type: integer
+        '404':
+          description: Trek not found
+  /api/treks/{trek_id}/book:
+      post:
+        summary: Book slots for a specific trek
+        tags:
+          - Bookings
+        parameters:
+          - name: trek_id
+            in: path
+            required: true
+            schema:
+              type: integer
+        requestBody:
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  slots_requested:
+                    type: integer
+                    default: 1
+                    description: Number of slots the trekker wants to book
+        responses:
+          '201':
+            description: Booking successful!
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    msg:
+                      type: string
+                    booking_id:
+                      type: integer
+                    remaining_slots:
+                      type: integer
+          '400':
+            description: Invalid slot request or trek not active
+          '403':
+            description: Unauthorized (Only Trekkers can book)
+          '404':
+            description: Trek not found
+          '409':
+            description: Insufficient slots remaining or user already booked
+          '500':
+            description: Database error while processing booking
+
+  /api/treks/{trek_id}/roster:
+    get:
+      summary: Get the participant roster for a trek
+      description: Returns the list of trekkers for a specific trek. Only accessible by Admins or the assigned Staff member.
+      tags:
+        - Bookings
+      parameters:
+        - name: trek_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Participant roster retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  trek_name:
+                    type: string
+                  total_booked_slots:
+                    type: integer
+                  roster:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        booking_id:
+                          type: integer
+                        trekker_name:
+                          type: string
+                        contact:
+                          type: string
+                        booked_slots:
+                          type: integer
+                        book_date:
+                          type: string
+                          format: date
+        '403':
+          description: Unauthorized (User is not admin or the assigned staff)
+        '404':
+          description: Trek not found
+
+  /api/bookings/{booking_id}/cancel:
+    post:
+      summary: Cancel an existing booking
+      description: Cancels a booking and restores the slots to the Trek inventory. Can be done by the Trekker who booked it, or an Admin.
+      tags:
+        - Bookings
+      parameters:
+        - name: booking_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Booking cancelled successfully and slots restored
+        '400':
+          description: Booking is already cancelled
+        '403':
+          description: Unauthorized to cancel this booking
+        '404':
+          description: Booking not found
+        '500':
+          description: Database error while cancelling
+  /api/login:
+      post:
+        summary: Authenticate user and get access token
+        tags:
+          - Authentication
+        security: [] # Overrides global security to allow unauthenticated access
+        requestBody:
+          required: true
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - email
+                  - password
+                properties:
+                  email:
+                    type: string
+                    format: email
+                  password:
+                    type: string
+        responses:
+          '200':
+            description: Login successful
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    msg:
+                      type: string
+                    access_token:
+                      type: string
+                    user:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                        name:
+                          type: string
+                        email:
+                          type: string
+                        role:
+                          type: string
+                        contact:
+                          type: string
+          '400':
+            description: Email and password are required
+          '401':
+            description: Invalid credentials
+          '403':
+            description: Account blacklisted or deactivated
+
+  /api/register:
+    post:
+      summary: Register a new trekker
+      tags:
+        - Authentication
+      security: [] # Overrides global security to allow unauthenticated access
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+                - email
+                - password
+              properties:
+                name:
+                  type: string
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+                contact:
+                  type: string
+      responses:
+        '201':
+          description: Registration successful
+        '400':
+          description: Missing required fields
+        '409':
+          description: Email already registered
+        '500':
+          description: Database error
+
+  /api/logout:
+    post:
+      summary: Logout user and blocklist token
+      tags:
+        - Authentication
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Successfully logged out
+        '500':
+          description: Error logging out
+
+  /api/profile:
+    get:
+      summary: Get current logged-in user profile
+      tags:
+        - Profile
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Profile retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  name:
+                    type: string
+                  email:
+                    type: string
+                  contact:
+                    type: string
+                  role:
+                    type: string
+                  blacklist_status:
+                    type: boolean
+        '404':
+          description: User not found
+  /admin/create_staff:
+    post:
+      summary: Create a new staff member
+      tags:
+        - Staff
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+                - email
+                - password
+                - contact
+              properties:
+                name:
+                  type: string
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+                contact:
+                  type: string
+      responses:
+        '201':
+          description: Staff Created Successfully
+        '400':
+          description: User with this email already exists
+        '403':
+          description: Admin Auth required
+
+  /admin/create_trek:
+    post:
+      summary: Create a new trek
+      tags:
+        - Treks
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - date
+                - time
+                - name
+                - desc
+                - location
+                - slots
+                - staff_id
+              properties:
+                name:
+                  type: string
+                desc:
+                  type: string
+                location:
+                  type: string
+                date:
+                  type: string
+                  format: date
+                  example: '2024-12-01'
+                time:
+                  type: integer
+                  description: Duration in days
+                slots:
+                  type: integer
+                staff_id:
+                  type: integer
+                difficulty:
+                  type: string
+                  default: Moderate
+                fee:
+                  type: number
+                  format: float
+      responses:
+        '201':
+          description: Trek created successfully
+        '400':
+          description: Missing/Invalid fields or invalid staff_id
+        '403':
+          description: Admin Auth required
+        '500':
+          description: Database error
+
+  /admin/users:
+    get:
+      summary: Get all users (Trekkers and Staff)
+      tags:
+        - Users
+      parameters:
+        - name: search
+          in: query
+          schema:
+            type: string
+          description: Search by name or email
+      responses:
+        '200':
+          description: A list of users
+        '403':
+          description: Admin Auth required
+
+  /api/admin/users/{user_id}/{action}:
+    patch:
+      summary: Update user status (Blacklist/Activate)
+      tags:
+        - Users
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: action
+          in: path
+          required: true
+          schema:
+            type: string
+            enum: [blacklist, unblacklist, deactivate, activate]
+      responses:
+        '200':
+          description: User status updated successfully
+        '400':
+          description: Invalid action or cannot modify Admin status
+        '404':
+          description: User not found
+
+  /admin/treks/{trek_id}:
+    put:
+      summary: Update an existing trek
+      tags:
+        - Treks
+      parameters:
+        - name: trek_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                desc:
+                  type: string
+                difficulty:
+                  type: string
+                trek_fee:
+                  type: number
+                  format: float
+                status:
+                  type: string
+                start_date:
+                  type: string
+                  format: date
+                time_duration:
+                  type: integer
+                staff_id:
+                  type: integer
+      responses:
+        '200':
+          description: Trek updated successfully
+        '400':
+          description: Invalid date/duration or staff_id format
+        '403':
+          description: Cannot modify Completed/Cancelled trek or Admin Auth required
+        '404':
+          description: Trek not found
+        '500':
+          description: Database error
+
+    delete:
+      summary: Delete a trek
+      tags:
+        - Treks
+      parameters:
+        - name: trek_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Trek deleted successfully
+        '403':
+          description: Cannot delete a Completed/Cancelled trek or Admin Auth required
+        '404':
+          description: Trek not found
+        '500':
+          description: Database constraint error
+
+  /api/admin/dashboard-stats:
+    get:
+      summary: Get admin dashboard statistics
+      tags:
+        - Dashboard
+      responses:
+        '200':
+          description: Dashboard stats retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  total_trekkers:
+                    type: integer
+                  total_staff:
+                    type: integer
+                  active_treks:
+                    type: integer
+                  total_bookings:
+                    type: integer
+                  total_revenue:
+                    type: number
+                    format: float
+
+  /api/admin/treks/{trek_id}/assign:
+    put:
+      summary: Assign staff to a trek
+      tags:
+        - Treks
+      parameters:
+        - name: trek_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                staff_id:
+                  type: integer
+      responses:
+        '200':
+          description: Staff successfully assigned
+        '400':
+          description: Invalid staff ID
+        '404':
+          description: Trek not found
+
+  /api/admin/bookings:
+    get:
+      summary: View all bookings globally
+      tags:
+        - Bookings
+      parameters:
+        - name: search
+          in: query
+          schema:
+            type: string
+          description: Search by user name, email, or trek name
+      responses:
+        '200':
+          description: List of all bookings
+
+  /api/admin/treks:
+    get:
+      summary: View all treks
+      tags:
+        - Treks
+      parameters:
+        - name: search
+          in: query
+          schema:
+            type: string
+          description: Search by trek name, location, or status
+      responses:
+        '200':
+          description: List of all treks
+
+  /api/admin/treks/{trek_id}:
+    get:
+      summary: Get details of a single trek
+      tags:
+        - Treks
+      parameters:
+        - name: trek_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Trek details retrieved successfully
+        '404':
+          description: Trek not found
+
+  /api/admin/staff:
+    get:
+      summary: Get all staff members
+      tags:
+        - Staff
+      parameters:
+        - name: search
+          in: query
+          schema:
+            type: string
+          description: Search by staff name or email
+      responses:
+        '200':
+          description: List of staff members
+
+  /api/admin/staff/{staff_id}:
+    get:
+      summary: Get details of a single staff member
+      tags:
+        - Staff
+      parameters:
+        - name: staff_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Staff details retrieved successfully
+        '404':
+          description: Staff member not found
+
+    put:
+      summary: Update a staff member's profile
+      tags:
+        - Staff
+      parameters:
+        - name: staff_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                contact:
+                  type: string
+      responses:
+        '200':
+          description: Staff details updated successfully
+        '404':
+          description: Staff member not found
+
+  /api/admin/users/{user_id}:
+    get:
+      summary: Get details of a single user
+      tags:
+        - Users
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: User details retrieved successfully
+        '404':
+          description: User not found
+
+  /api/admin/history/users/{user_id}:
+    get:
+      summary: View booking history of a specific user
+      tags:
+        - History
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: User booking history retrieved successfully
+        '404':
+          description: Trekker not found
+
+  /api/admin/history/treks:
+    get:
+      summary: View historically completed or cancelled treks
+      tags:
+        - History
+      parameters:
+        - name: search
+          in: query
+          schema:
+            type: string
+          description: Search by trek name or location
+      responses:
+        '200':
+          description: List of historical treks
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
