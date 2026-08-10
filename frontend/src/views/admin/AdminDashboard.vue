@@ -94,7 +94,7 @@ const performGlobalSearch = async (query) => {
   isSearching.value = true;
   try {
     
-    const usersRes = await axios.get(`/api/admin/users?search=${query}`);
+    const usersRes = await axios.get(`/admin/users?search=${query}`);
     searchResults.value.users = usersRes.data.users || [];
 
     const treksRes = await axios.get(`/api/admin/treks?search=${query}`); 
